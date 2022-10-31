@@ -1,9 +1,13 @@
 package com.allocator.resourcemanagementservice.service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
 public class Server implements Runnable{
   public static final float SERVER_SIZE = 100;
-  public static final int SERVER_STARTUP_DELAY = 20000;
+  public static final int SERVER_STARTUP_DELAY = 5000;
   public static final int CREATING_STATE = 0;
   public static final int ACTIVE_STATE = 1;
 
@@ -11,6 +15,7 @@ public class Server implements Runnable{
   int users;
   long id;
   int state;
+  List<CountDownLatch> waitingLatches = new ArrayList<>();
 
   public Server(){
     super();
@@ -41,7 +46,19 @@ public class Server implements Runnable{
 
   private void startServer() throws InterruptedException {
     Thread.sleep(SERVER_STARTUP_DELAY);
+    notifyAllWaitingLatches();
     this.state = ACTIVE_STATE;
+  }
+
+  private synchronized void notifyAllWaitingLatches(){
+    for (CountDownLatch latch : waitingLatches) {
+      latch.countDown();
+    }
+    waitingLatches.clear();
+  }
+
+  public synchronized void addWaitingLatch(CountDownLatch latch){
+    waitingLatches.add(latch);
   }
 
   public float getCapacity() {
@@ -74,5 +91,9 @@ public class Server implements Runnable{
 
   public void setState(int state) {
     this.state = state;
+  }
+
+  public boolean isActive(){
+    return state == ACTIVE_STATE;
   }
 }
