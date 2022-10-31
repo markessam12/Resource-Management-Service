@@ -32,7 +32,8 @@ public class ServersManager {
     return allocatedServer;
   }
 
-  private synchronized Server allocateToSuitableServer(float requestedMemory){
+  private synchronized Server allocateToSuitableServer(float requestedMemory)
+      throws InterruptedException {
     Server availableServer = searchInExistingServers(requestedMemory);
     if(availableServer == null){
       availableServer = createNewServer();
@@ -50,7 +51,7 @@ public class ServersManager {
     return null;
   }
 
-  private Server createNewServer(){
+  private Server createNewServer() throws InterruptedException {
     Server newServer = new Server();
     servers.add(newServer);
     return newServer;

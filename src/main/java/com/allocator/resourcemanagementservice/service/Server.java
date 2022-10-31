@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-public class Server implements Runnable{
+public class Server{
   public static final float SERVER_SIZE = 100;
-  public static final int SERVER_STARTUP_DELAY = 5000;
+  public static final int SERVER_STARTUP_DELAY = 2000;
   public static final int CREATING_STATE = 0;
   public static final int ACTIVE_STATE = 1;
 
@@ -17,12 +20,12 @@ public class Server implements Runnable{
   int state;
   List<CountDownLatch> waitingLatches = new ArrayList<>();
 
-  public Server(){
+  public Server() throws InterruptedException {
     super();
     this.state = CREATING_STATE;
     this.capacity = SERVER_SIZE;
     this.id = new Date().getTime();
-    new Thread(this).start();
+    startServer();
   }
 
   public boolean isAvailable(float requiredMemory){
@@ -35,19 +38,15 @@ public class Server implements Runnable{
     return capacity;
   }
 
-  @Override
-  public void run() {
-    try {
-      startServer();
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-    }
-  }
-
   private void startServer() throws InterruptedException {
-    Thread.sleep(SERVER_STARTUP_DELAY);
-    notifyAllWaitingLatches();
-    this.state = ACTIVE_STATE;
+    ScheduledExecutorService scheduler
+        = Executors.newSingleThreadScheduledExecutor();
+    Runnable task = () -> {
+      setState(ACTIVE_STATE);
+      notifyAllWaitingLatches();
+    };
+    scheduler.schedule(task, SERVER_STARTUP_DELAY, TimeUnit.MILLISECONDS);
+    scheduler.shutdown();
   }
 
   private synchronized void notifyAllWaitingLatches(){
