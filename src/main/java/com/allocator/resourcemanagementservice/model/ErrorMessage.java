@@ -2,6 +2,9 @@ package com.allocator.resourcemanagementservice.model;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * Error message is a class to send error message and error codes in the API response.
+ */
 @XmlRootElement
 public class ErrorMessage {
   private String message;

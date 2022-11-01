@@ -2,6 +2,9 @@ package com.allocator.resourcemanagementservice.model;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * Server DTO (Data Transfer Object) is the object sent and received from the rest API
+ */
 @XmlRootElement
 public class ServerDTO {
   float capacity;
@@ -9,6 +12,10 @@ public class ServerDTO {
   long id;
   int state;
 
+
+  /**
+   * This constructor is used by the mapStruct in converting the Server to ServerDTO.
+   */
   public ServerDTO() {
   }
 
