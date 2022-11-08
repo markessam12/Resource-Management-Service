@@ -3,9 +3,10 @@ package com.allocator.resourcemanagementservice.service;
 import com.allocator.resourcemanagementservice.exception.RefusedRequestException;
 import com.allocator.resourcemanagementservice.exception.ServerNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
-import jdk.nashorn.internal.objects.NativeUint8Array;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,8 @@ import org.slf4j.LoggerFactory;
  */
 public class ServersManagerImp implements ServersManager{
 
-  private static final List<Server> servers = new ArrayList<>();
+  private static final List<Server> servers =
+      Collections.synchronizedList(new ArrayList<>());
 
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ServersManagerImp.class);
@@ -62,12 +64,14 @@ public class ServersManagerImp implements ServersManager{
   }
 
   private Server findFreeServer(float requestedMemory){
-    for (Server server : servers) {
-      if(server.isAvailable(requestedMemory)){
-        return server;
-      }
+    // #Iterators aren't thread safe. So, the old for-each implementation was replaced
+//    #Another implementation, not sure if it's thread safe/faster to execute
+    synchronized (servers){
+      Optional<Server> freeServer = servers.stream()
+          .filter(server -> server.isAvailable(requestedMemory))
+          .findAny();
+      return freeServer.orElse(null);
     }
-    return null;
   }
 
   private Server createNewServer(){

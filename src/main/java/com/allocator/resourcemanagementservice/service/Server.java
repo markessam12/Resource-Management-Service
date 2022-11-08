@@ -1,6 +1,7 @@
 package com.allocator.resourcemanagementservice.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -25,7 +26,6 @@ public class Server{
   public static final int SERVER_STARTUP_DELAY = 5000;
   public static final int CREATING_STATE = 0;
   public static final int ACTIVE_STATE = 1;
-
   private static final Logger LOGGER =
       LoggerFactory.getLogger(Server.class);
 
@@ -36,7 +36,8 @@ public class Server{
   /**
    * A list of latches representing all clients waiting for the server to be active
    */
-  List<CountDownLatch> waitingLatches = new ArrayList<>();
+  List<CountDownLatch> waitingLatches =
+      Collections.synchronizedList(new ArrayList<>());
 
   /**
    * Instantiates a new Server.
@@ -84,11 +85,11 @@ public class Server{
     scheduler.shutdown();
   }
 
-  //not sure if waiting-latches list is thread save
-  private synchronized void notifyAllWaitingLatches(){
-    for (CountDownLatch latch : waitingLatches) {
-      latch.countDown();
-    }
+  //waiting latches list should be thread save, new latches only added when the server is in starting state
+  //And notifying all latches only occurs after the server is set to active state
+  //So, we guaranteed that no new latch will be added during the notification of the existing latches
+  private void notifyAllWaitingLatches(){
+    waitingLatches.forEach(CountDownLatch::countDown);
     waitingLatches.clear();
   }
 
@@ -98,7 +99,7 @@ public class Server{
    *
    * @param latch the latch
    */
-  public synchronized void addWaitingLatch(CountDownLatch latch){
+  public void addWaitingLatch(CountDownLatch latch){
     waitingLatches.add(latch);
   }
 
