@@ -5,6 +5,7 @@ import com.allocator.resourcemanagementservice.exception.ServerNotFoundException
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import jdk.nashorn.internal.objects.NativeUint8Array;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,6 @@ import org.slf4j.LoggerFactory;
  * The implementation of ServersManager Interface
  */
 public class ServersManagerImp implements ServersManager{
-  private static ServersManagerImp INSTANCE = null;
 
   private static final List<Server> servers = new ArrayList<>();
 
@@ -24,16 +24,17 @@ public class ServersManagerImp implements ServersManager{
     super();
   }
 
+  private static final class InstanceHolder {
+    private static final ServersManagerImp INSTANCE = new ServersManagerImp();
+  }
+
   /**
    * Get the Singleton instance of the serversManager.
    *
    * @return the serversManager Instance
    */
   public static ServersManagerImp getINSTANCE(){
-    if(INSTANCE == null){
-      INSTANCE = new ServersManagerImp();
-    }
-    return INSTANCE;
+    return InstanceHolder.INSTANCE;
   }
 
   public Server allocateServer(float requestedMemory)
