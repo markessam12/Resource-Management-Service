@@ -4,6 +4,7 @@ import com.allocator.resourcemanagementservice.exception.RefusedRequestException
 import com.allocator.resourcemanagementservice.exception.ServerNotFoundException;
 import com.allocator.resourcemanagementservice.service.Server;
 import com.allocator.resourcemanagementservice.service.ServersManagerImp;
+import com.allocator.resourcemanagementservice.service.State;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -99,7 +100,7 @@ class ServersManagerImpTest {
   void allocateServer_ServerIsInActiveState_True()
       throws InterruptedException, RefusedRequestException {
     Server newServer = ServersManagerImp.getINSTANCE().allocateServer(Server.SERVER_SIZE);
-    assertEquals(Server.ACTIVE_STATE, newServer.getState(), "Server isn't in active state yet");
+    assertEquals(State.ACTIVE, newServer.getState(), "Server isn't in active state yet");
   }
 
   @Test
@@ -140,9 +141,9 @@ class ServersManagerImpTest {
   //Java reflection is used to edit the private servers attribute without exposing it with a public getters and setters
   private static void injectServersIntoServersManager(Server... newServers)
       throws IllegalAccessException, NoSuchFieldException {
-    Field serversListFiled = ServersManagerImp.class.getDeclaredField("servers");
-    serversListFiled.setAccessible(true);
-    Object serversObject = serversListFiled.get(ServersManagerImp.getINSTANCE());
+    Field serversField = ServersManagerImp.class.getDeclaredField("servers");
+    serversField.setAccessible(true);
+    Object serversObject = serversField.get(ServersManagerImp.getINSTANCE());
     try{
       if(serversObject instanceof ArrayList<?>){
         ArrayList<?> ManagerServers = ((ArrayList<?>) serversObject);

@@ -24,15 +24,15 @@ public class Server{
    * The time taken until the newly created server become in active state.
    */
   public static final int SERVER_STARTUP_DELAY = 5000;
-  public static final int CREATING_STATE = 0;
-  public static final int ACTIVE_STATE = 1;
   private static final Logger LOGGER =
       LoggerFactory.getLogger(Server.class);
 
   private float capacity;
   private int users;
   private final long id;
-  private int state;
+
+  private State state;
+
   /**
    * A list of latches representing all clients waiting for the server to be active
    */
@@ -44,7 +44,7 @@ public class Server{
    */
   public Server(){
     super();
-    this.state = CREATING_STATE;
+    this.state = State.STARTING;
     this.capacity = SERVER_SIZE;
     this.id = new Date().getTime();
     startServer();
@@ -77,7 +77,7 @@ public class Server{
     ScheduledExecutorService scheduler
         = Executors.newSingleThreadScheduledExecutor();
     Runnable task = () -> {
-      setState(ACTIVE_STATE);
+      setState(State.ACTIVE);
       LOGGER.info("Server {} was created and in ACTIVE state", this.id);
       notifyAllWaitingLatches();
     };
@@ -135,7 +135,7 @@ public class Server{
    *
    * @return the state
    */
-  public int getState() {
+  public State getState() {
     return state;
   }
 
@@ -144,7 +144,7 @@ public class Server{
    *
    * @param state the state
    */
-  public void setState(int state) {
+  public void setState(State state) {
     this.state = state;
   }
 
@@ -154,6 +154,6 @@ public class Server{
    * @return the boolean
    */
   public boolean isActive(){
-    return state == ACTIVE_STATE;
+    return state == State.ACTIVE;
   }
 }

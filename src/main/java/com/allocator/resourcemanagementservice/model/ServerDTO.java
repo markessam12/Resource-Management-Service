@@ -1,5 +1,6 @@
 package com.allocator.resourcemanagementservice.model;
 
+import com.allocator.resourcemanagementservice.service.State;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -10,7 +11,7 @@ public class ServerDTO {
   float capacity;
   int users;
   long id;
-  int state;
+  State state;
 
 
   /**
@@ -43,11 +44,11 @@ public class ServerDTO {
     this.id = id;
   }
 
-  public int getState() {
+  public State getState() {
     return state;
   }
 
-  public void setState(int state) {
+  public void setState(State state) {
     this.state = state;
   }
 }

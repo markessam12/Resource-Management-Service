@@ -54,7 +54,7 @@ public class ServerController {
   @GET
   @Path("{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response getExistingServers(@PathParam("id") long id){
+  public Response getServer(@PathParam("id") long id){
     ServerDTO serverDTO;
     try {
       serverDTO = ServerMapper.INSTANCE.serverToDto(

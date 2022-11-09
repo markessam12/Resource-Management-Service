@@ -16,8 +16,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ServersManagerImp implements ServersManager{
 
-  private static final List<Server> servers =
-      Collections.synchronizedList(new ArrayList<>());
+  private static final List<Server> servers = new ArrayList<>();
 
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ServersManagerImp.class);
@@ -42,9 +41,9 @@ public class ServersManagerImp implements ServersManager{
   public Server allocateServer(float requestedMemory)
       throws RefusedRequestException, InterruptedException {
     LOGGER.info("Requested {}GB of memory", requestedMemory);
-    if(requestedMemory > Server.SERVER_SIZE){
-      LOGGER.warn("Maximum server size is {}GB, can't allocate {}GB", Server.SERVER_SIZE, requestedMemory);
-      throw new RefusedRequestException("Request denied. The Maximum server this is 100GB.");
+    if(requestedMemory > Server.SERVER_SIZE || requestedMemory < 1){
+      LOGGER.warn("Maximum server size is {}GB and minimum request is 1GB, can't allocate {}GB", Server.SERVER_SIZE, requestedMemory);
+      throw new RefusedRequestException("Request denied. The Maximum server this is 100GB and minimum request is 1GB.");
     }
     Server allocatedServer = allocateToSuitableServer(requestedMemory);
     waitUntilServerActivate(allocatedServer);
